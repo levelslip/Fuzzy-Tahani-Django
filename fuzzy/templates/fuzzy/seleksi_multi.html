@@ -1,0 +1,196 @@
+{% extends 'fuzzy/base.html' %}
+{% load fuzzy_tags %}
+
+{% comment %}
+Halaman Seleksi Fuzzy Multi-Kriteria
+
+Form untuk memilih banyak kriteria sekaligus.
+{% endcomment %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Seleksi Multi-Kriteria</li>
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    
+    <div class="row">
+        <!-- Form Seleksi -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-filter-square me-2"></i> Pilih Kriteria
+                </div>
+                <div class="card-body">
+                    <!-- Pilih Operator -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Operator</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="operator" id="op_and" value="AND" 
+                                {% if operator == 'AND' %}checked{% endif %}>
+                            <label class="btn btn-outline-primary" for="op_and">
+                                <i class="bi bi-intersect me-1"></i> AND (MIN)
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="operator" id="op_or" value="OR"
+                                {% if operator == 'OR' %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="op_or">
+                                <i class="bi bi-union me-1"></i> OR (MAX)
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Daftar Kriteria -->
+                    <div class="accordion" id="accordionKriteria">
+                        {% for var_code, var_label in variabel_list %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" 
+                                        type="button" data-bs-toggle="collapse" 
+                                        data-bs-target="#collapse{{ var_code }}">
+                                    {{ var_label }}
+                                </button>
+                            </h2>
+                            <div id="collapse{{ var_code }}" 
+                                 class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                                 data-bs-parent="#accordionKriteria">
+                                <div class="accordion-body">
+                                    {% for kat_code, kat_label in kategori_variabel|get_item:var_code %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                               name="kriteria" value="{{ var_code }}|{{ kat_code }}"
+                                               id="krit_{{ var_code }}_{{ kat_code }}"
+                                               {% if var_code|add:"|"|add:kat_code in selected_kriteria %}checked{% endif %}>
+                                        <label class="form-check-label" for="krit_{{ var_code }}_{{ kat_code }}">
+                                            {{ kat_label }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-search me-2"></i> Proses Seleksi
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Info -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6><i class="bi bi-lightbulb me-2"></i> Tips</h6>
+                    <ul class="small text-muted mb-0">
+                        <li>Centang minimal 2 kriteria untuk seleksi</li>
+                        <li>Gunakan <strong>AND</strong> jika semua kriteria harus terpenuhi</li>
+                        <li>Gunakan <strong>OR</strong> jika salah satu kriteria cukup</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hasil Seleksi -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>
+                        <i class="bi bi-table me-2"></i> Hasil Seleksi Multi-Kriteria
+                    </span>
+                    {% if hasil %}
+                    <span class="badge bg-success">{{ hasil|length }} kelompok ditemukan</span>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    {% if hasil %}
+                        <!-- Kriteria yang digunakan -->
+                        <div class="alert alert-info-custom m-3 mb-0">
+                            <strong>Kriteria ({{ operator }}):</strong><br>
+                            {% for kt in kriteria_teks %}
+                                <span class="badge bg-primary me-1 mb-1">{{ kt }}</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Nama Kelompok</th>
+                                        <th>Data Crisp</th>
+                                        <th class="text-center">Membership Values</th>
+                                        <th class="text-center">Fire Strength</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in hasil %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge {% if forloop.counter <= 3 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                                #{{ forloop.counter }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ item.kelompok.nama }}</strong>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                Usia: {{ item.kelompok.usia }} thn<br>
+                                                Anggota: {{ item.kelompok.jumlah_anggota }}<br>
+                                                Lahan: {{ item.kelompok.luas_lahan }} Ha<br>
+                                                Frek: {{ item.kelompok.frekuensi_bantuan }}x
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {% for key, val in item.membership_values.items %}
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <small class="text-muted">{{ key|cut:"_" }}</small>
+                                                <span class="badge {% if val.membership >= 0.7 %}bg-success{% elif val.membership >= 0.3 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ val.membership }}
+                                                </span>
+                                            </div>
+                                            {% endfor %}
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            <span class="badge bg-{% if item.fire_strength >= 0.7 %}success{% elif item.fire_strength >= 0.3 %}warning{% else %}danger{% endif %} badge-fire-strength fs-5">
+                                                {{ item.fire_strength }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% elif request.method == 'POST' %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-x-circle text-warning" style="font-size: 4rem;"></i>
+                            <h5 class="text-muted mt-3">Tidak Ada Hasil</h5>
+                            <p class="text-muted">
+                                Tidak ada kelompok dengan fire strength > 0 untuk kriteria yang dipilih.<br>
+                                <small>Pastikan Anda telah memilih minimal 2 kriteria.</small>
+                            </p>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-check2-square text-muted" style="font-size: 4rem;"></i>
+                            <h5 class="text-muted mt-3">Pilih Kriteria</h5>
+                            <p class="text-muted">
+                                Centang kriteria yang diinginkan di panel kiri,<br>
+                                pilih operator (AND/OR), lalu klik "Proses Seleksi".
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

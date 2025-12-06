@@ -1,0 +1,121 @@
+{% extends 'fuzzy/base.html' %}
+
+{% comment %}
+Halaman Daftar Kelompok
+
+Menampilkan semua data kelompok dalam bentuk tabel dengan aksi CRUD.
+{% endcomment %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Data Kelompok</li>
+{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'kelompok_add' %}" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-2"></i> Tambah Kelompok
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-people-fill me-2"></i> Daftar Kelompok
+        <span class="badge bg-primary ms-2">{{ kelompok_list|length }} data</span>
+    </div>
+    <div class="card-body p-0">
+        {% if kelompok_list %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Kelompok</th>
+                        <th class="text-center">Usia</th>
+                        <th class="text-center">Anggota</th>
+                        <th class="text-center">Lahan (Ha)</th>
+                        <th class="text-center">Frek. Bantuan</th>
+                        <th class="text-center">SDM</th>
+                        <th class="text-center">Unit Usaha</th>
+                        <th class="text-center">Kas</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for kelompok in kelompok_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <strong>{{ kelompok.nama }}</strong>
+                            <br>
+                            <small class="text-muted">Berdiri: {{ kelompok.tanggal_berdiri|date:"d M Y" }}</small>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-secondary">{{ kelompok.usia }} thn</span>
+                        </td>
+                        <td class="text-center">{{ kelompok.jumlah_anggota }}</td>
+                        <td class="text-center">{{ kelompok.luas_lahan }}</td>
+                        <td class="text-center">{{ kelompok.frekuensi_bantuan }}x</td>
+                        <td class="text-center">
+                            <span class="badge {% if kelompok.sdm >= 7 %}bg-success{% elif kelompok.sdm >= 4 %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ kelompok.sdm }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge {% if kelompok.unit_usaha >= 7 %}bg-success{% elif kelompok.unit_usaha >= 4 %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ kelompok.unit_usaha }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge {% if kelompok.kas >= 7 %}bg-success{% elif kelompok.kas >= 4 %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ kelompok.kas }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'kelompok_detail' kelompok.pk %}" class="btn btn-outline-info" title="Detail">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'kelompok_edit' kelompok.pk %}" class="btn btn-outline-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'kelompok_delete' kelompok.pk %}" class="btn btn-outline-danger" title="Hapus">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+            <h5 class="text-muted mt-3">Belum Ada Data Kelompok</h5>
+            <p class="text-muted">Mulai dengan menambahkan data kelompok pertama.</p>
+            <a href="{% url 'kelompok_add' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i> Tambah Kelompok
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Legend -->
+<div class="card mt-3">
+    <div class="card-body">
+        <h6><i class="bi bi-info-circle me-2"></i> Keterangan Warna Skor:</h6>
+        <div class="d-flex gap-4">
+            <div>
+                <span class="badge bg-success">7-10</span> Baik / Sangat Baik
+            </div>
+            <div>
+                <span class="badge bg-warning">4-6</span> Cukup
+            </div>
+            <div>
+                <span class="badge bg-danger">1-3</span> Kurang / Buruk
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

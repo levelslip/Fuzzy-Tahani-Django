@@ -1,0 +1,167 @@
+{% extends 'fuzzy/base.html' %}
+
+{% comment %}
+Form Tambah/Edit Kelompok
+
+Template ini digunakan untuk form tambah dan edit data kelompok.
+{% endcomment %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'kelompok_list' %}">Data Kelompok</a></li>
+<li class="breadcrumb-item active">{{ action }} Kelompok</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-{% if action == 'Tambah' %}plus-circle{% else %}pencil{% endif %} me-2"></i>
+                Form {{ action }} Kelompok
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Informasi Dasar -->
+                    <h6 class="text-muted mb-3">
+                        <i class="bi bi-info-circle me-2"></i> Informasi Dasar
+                    </h6>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label for="{{ form.nama.id_for_label }}" class="form-label">
+                                Nama Kelompok <span class="text-danger">*</span>
+                            </label>
+                            {{ form.nama }}
+                            {% if form.nama.errors %}
+                                <div class="invalid-feedback d-block">{{ form.nama.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.tanggal_berdiri.id_for_label }}" class="form-label">
+                                Tanggal Berdiri <span class="text-danger">*</span>
+                            </label>
+                            {{ form.tanggal_berdiri }}
+                            {% if form.tanggal_berdiri.errors %}
+                                <div class="invalid-feedback d-block">{{ form.tanggal_berdiri.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label for="{{ form.jumlah_anggota.id_for_label }}" class="form-label">
+                                Jumlah Anggota <span class="text-danger">*</span>
+                            </label>
+                            {{ form.jumlah_anggota }}
+                            {% if form.jumlah_anggota.errors %}
+                                <div class="invalid-feedback d-block">{{ form.jumlah_anggota.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.luas_lahan.id_for_label }}" class="form-label">
+                                Luas Lahan (Ha) <span class="text-danger">*</span>
+                            </label>
+                            {{ form.luas_lahan }}
+                            {% if form.luas_lahan.errors %}
+                                <div class="invalid-feedback d-block">{{ form.luas_lahan.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.frekuensi_bantuan.id_for_label }}" class="form-label">
+                                Frekuensi Bantuan <span class="text-danger">*</span>
+                            </label>
+                            {{ form.frekuensi_bantuan }}
+                            {% if form.frekuensi_bantuan.errors %}
+                                <div class="invalid-feedback d-block">{{ form.frekuensi_bantuan.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Skor Penilaian -->
+                    <h6 class="text-muted mb-3">
+                        <i class="bi bi-graph-up me-2"></i> Skor Penilaian (1-10)
+                    </h6>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="{{ form.sdm.id_for_label }}" class="form-label">
+                                Kualitas SDM <span class="text-danger">*</span>
+                            </label>
+                            {{ form.sdm }}
+                            {% if form.sdm.errors %}
+                                <div class="invalid-feedback d-block">{{ form.sdm.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">Nilai 1-10</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.unit_usaha.id_for_label }}" class="form-label">
+                                Unit Usaha <span class="text-danger">*</span>
+                            </label>
+                            {{ form.unit_usaha }}
+                            {% if form.unit_usaha.errors %}
+                                <div class="invalid-feedback d-block">{{ form.unit_usaha.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">Nilai 1-10</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.kas.id_for_label }}" class="form-label">
+                                Kas <span class="text-danger">*</span>
+                            </label>
+                            {{ form.kas }}
+                            {% if form.kas.errors %}
+                                <div class="invalid-feedback d-block">{{ form.kas.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">Nilai 1-10</small>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'kelompok_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i> Kembali
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-2"></i> {{ action }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Help Card -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-question-circle me-2"></i> Panduan Pengisian
+            </div>
+            <div class="card-body">
+                <h6>Informasi Dasar</h6>
+                <ul class="small text-muted">
+                    <li><strong>Nama Kelompok:</strong> Nama resmi kelompok</li>
+                    <li><strong>Tanggal Berdiri:</strong> Tanggal kelompok didirikan (untuk menghitung usia)</li>
+                    <li><strong>Jumlah Anggota:</strong> Total anggota aktif</li>
+                    <li><strong>Luas Lahan:</strong> Dalam satuan hektar</li>
+                    <li><strong>Frekuensi Bantuan:</strong> Berapa kali sudah menerima bantuan</li>
+                </ul>
+                
+                <hr>
+                
+                <h6>Skor Penilaian (1-10)</h6>
+                <ul class="small text-muted">
+                    <li><strong>1-2:</strong> Buruk</li>
+                    <li><strong>3-4:</strong> Kurang</li>
+                    <li><strong>5-6:</strong> Cukup</li>
+                    <li><strong>7-8:</strong> Baik</li>
+                    <li><strong>9-10:</strong> Sangat Baik</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

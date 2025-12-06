@@ -1,0 +1,236 @@
+{% extends 'fuzzy/base.html' %}
+
+{% comment %}
+Halaman Seleksi Fuzzy (AND dan OR)
+
+Form untuk memilih 2 kriteria dan melakukan seleksi fuzzy.
+Template ini digunakan untuk seleksi AND maupun OR.
+{% endcomment %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Seleksi Fuzzy {{ operator }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Form Seleksi -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-{% if operator == 'AND' %}intersect{% else %}union{% endif %} me-2"></i>
+                Kriteria Seleksi {{ operator }}
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Kriteria 1 -->
+                    <div class="alert alert-light">
+                        <h6 class="alert-heading">
+                            <span class="badge bg-primary me-2">1</span> Kriteria Pertama
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small">Variabel</label>
+                            {{ form.variabel_1 }}
+                        </div>
+                        
+                        <div class="mb-0">
+                            <label class="form-label small">Kategori</label>
+                            {{ form.kategori_1 }}
+                        </div>
+                    </div>
+                    
+                    <!-- Operator -->
+                    <div class="text-center my-3">
+                        <span class="badge bg-{% if operator == 'AND' %}primary{% else %}success{% endif %} fs-6 px-4 py-2">
+                            {{ operator }}
+                            <small class="d-block">{% if operator == 'AND' %}MIN(μ₁, μ₂){% else %}MAX(μ₁, μ₂){% endif %}</small>
+                        </span>
+                    </div>
+                    
+                    <!-- Kriteria 2 -->
+                    <div class="alert alert-light">
+                        <h6 class="alert-heading">
+                            <span class="badge bg-primary me-2">2</span> Kriteria Kedua
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small">Variabel</label>
+                            {{ form.variabel_2 }}
+                        </div>
+                        
+                        <div class="mb-0">
+                            <label class="form-label small">Kategori</label>
+                            {{ form.kategori_2 }}
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-{% if operator == 'AND' %}primary{% else %}success{% endif %} btn-lg">
+                            <i class="bi bi-search me-2"></i> Proses Seleksi {{ operator }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Info Box -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6><i class="bi bi-info-circle me-2"></i> Tentang Operator {{ operator }}</h6>
+                {% if operator == 'AND' %}
+                <p class="small text-muted mb-0">
+                    Operator <strong>AND</strong> menggunakan fungsi <code>MIN</code>.
+                    Fire strength adalah nilai <em>minimum</em> dari semua membership value.
+                    Cocok ketika <strong>semua kriteria harus dipenuhi</strong>.
+                </p>
+                {% else %}
+                <p class="small text-muted mb-0">
+                    Operator <strong>OR</strong> menggunakan fungsi <code>MAX</code>.
+                    Fire strength adalah nilai <em>maximum</em> dari semua membership value.
+                    Cocok ketika <strong>salah satu kriteria sudah cukup</strong>.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hasil Seleksi -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="bi bi-table me-2"></i> Hasil Seleksi
+                </span>
+                {% if hasil %}
+                <span class="badge bg-success">{{ hasil|length }} kelompok ditemukan</span>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                {% if hasil %}
+                    <!-- Kriteria yang digunakan -->
+                    <div class="alert alert-info-custom m-3 mb-0">
+                        <strong>Kriteria:</strong> 
+                        {% for kt in kriteria_teks %}
+                            <span class="badge bg-primary">{{ kt }}</span>
+                            {% if not forloop.last %}
+                                <span class="badge bg-dark">{{ operator }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Nama Kelompok</th>
+                                    {% for key, val in hasil.0.membership_values.items %}
+                                    <th class="text-center">μ ({{ key|cut:"_" }})</th>
+                                    {% endfor %}
+                                    <th class="text-center">Fire Strength</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in hasil %}
+                                <tr>
+                                    <td>
+                                        <span class="badge {% if forloop.counter <= 3 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                            #{{ forloop.counter }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ item.kelompok.nama }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            Usia: {{ item.kelompok.usia }} thn | 
+                                            Anggota: {{ item.kelompok.jumlah_anggota }} | 
+                                            Lahan: {{ item.kelompok.luas_lahan }} Ha
+                                        </small>
+                                    </td>
+                                    {% for key, val in item.membership_values.items %}
+                                    <td class="text-center">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <small class="text-muted mb-1">{{ val.nilai_crisp }}</small>
+                                            <span class="badge {% if val.membership >= 0.7 %}bg-success{% elif val.membership >= 0.3 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                {{ val.membership }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    {% endfor %}
+                                    <td class="text-center">
+                                        <span class="badge bg-{% if item.fire_strength >= 0.7 %}success{% elif item.fire_strength >= 0.3 %}warning{% else %}danger{% endif %} badge-fire-strength fs-6">
+                                            {{ item.fire_strength }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% elif request.method == 'POST' %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-x-circle text-warning" style="font-size: 4rem;"></i>
+                        <h5 class="text-muted mt-3">Tidak Ada Hasil</h5>
+                        <p class="text-muted">
+                            Tidak ada kelompok dengan fire strength > 0 untuk kriteria yang dipilih.
+                        </p>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-arrow-left-circle text-muted" style="font-size: 4rem;"></i>
+                        <h5 class="text-muted mt-3">Pilih Kriteria</h5>
+                        <p class="text-muted">
+                            Pilih kriteria di sebelah kiri dan klik tombol "Proses Seleksi" untuk melihat hasil.
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Data kategori per variabel (dari Django)
+    const kategoriVariabel = {
+        {% for var, kats in kategori_variabel.items %}
+        '{{ var }}': [
+            {% for k_code, k_label in kats %}
+            {'value': '{{ k_code }}', 'label': '{{ k_label }}'}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+    
+    // Update kategori dropdown ketika variabel berubah
+    function updateKategori(variabelSelect, kategoriSelect) {
+        const variabel = variabelSelect.value;
+        const kategori = kategoriVariabel[variabel] || [];
+        
+        // Clear existing options
+        kategoriSelect.innerHTML = '';
+        
+        // Add new options
+        kategori.forEach(function(k) {
+            const option = document.createElement('option');
+            option.value = k.value;
+            option.textContent = k.label;
+            kategoriSelect.appendChild(option);
+        });
+    }
+    
+    // Event listeners
+    document.getElementById('variabel_1').addEventListener('change', function() {
+        updateKategori(this, document.getElementById('kategori_1'));
+    });
+    
+    document.getElementById('variabel_2').addEventListener('change', function() {
+        updateKategori(this, document.getElementById('kategori_2'));
+    });
+</script>
+{% endblock %}

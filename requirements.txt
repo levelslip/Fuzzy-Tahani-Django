@@ -1,0 +1,32 @@
+# SPK Fuzzy Database Model Tahani
+# Requirements for Django Web Application
+
+# Django Framework
+Django>=5.0,<6.0
+
+# Production Server
+gunicorn>=21.0.0
+
+# Database (PostgreSQL for production)
+psycopg2-binary>=2.9.9
+dj-database-url>=2.1.0
+
+# Environment Variables
+python-decouple>=3.8
+
+# Static Files Handling
+whitenoise>=6.6.0
+
+# Optional: Data Processing
+# numpy>=1.26.0
+# pandas>=2.1.0
+
+# Optional: PDF Export
+# reportlab>=4.0.0
+# xhtml2pdf>=0.2.11
+
+# Optional: Charts
+# matplotlib>=3.8.0
+
+# Development only (uncomment if needed)
+# django-debug-toolbar>=4.2.0

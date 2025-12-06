@@ -1,0 +1,170 @@
+{% extends 'fuzzy/base.html' %}
+{% load fuzzy_tags %}
+
+{% comment %}
+Halaman Detail Kelompok
+
+Menampilkan detail kelompok beserta nilai fuzzifikasi lengkap.
+{% endcomment %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'kelompok_list' %}">Data Kelompok</a></li>
+<li class="breadcrumb-item active">{{ kelompok.nama }}</li>
+{% endblock %}
+
+{% block header_actions %}
+<div class="btn-group">
+    <a href="{% url 'kelompok_edit' kelompok.pk %}" class="btn btn-warning">
+        <i class="bi bi-pencil me-2"></i> Edit
+    </a>
+    <a href="{% url 'kelompok_delete' kelompok.pk %}" class="btn btn-danger">
+        <i class="bi bi-trash me-2"></i> Hapus
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Data Crisp -->
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i> Data Kelompok
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="40%">Nama</th>
+                        <td><strong>{{ kelompok.nama }}</strong></td>
+                    </tr>
+                    <tr>
+                        <th>Tanggal Berdiri</th>
+                        <td>{{ kelompok.tanggal_berdiri|date:"d F Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Usia</th>
+                        <td>
+                            <span class="badge bg-primary">{{ kelompok.usia }} tahun</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Jumlah Anggota</th>
+                        <td>{{ kelompok.jumlah_anggota }} orang</td>
+                    </tr>
+                    <tr>
+                        <th>Luas Lahan</th>
+                        <td>{{ kelompok.luas_lahan }} Ha</td>
+                    </tr>
+                    <tr>
+                        <th>Frekuensi Bantuan</th>
+                        <td>{{ kelompok.frekuensi_bantuan }} kali</td>
+                    </tr>
+                </table>
+                
+                <hr>
+                
+                <h6 class="mb-3">Skor Penilaian</h6>
+                <div class="row">
+                    <div class="col-4 text-center">
+                        <div class="h3 {% if kelompok.sdm >= 7 %}text-success{% elif kelompok.sdm >= 4 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ kelompok.sdm }}
+                        </div>
+                        <small class="text-muted">SDM</small>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="h3 {% if kelompok.unit_usaha >= 7 %}text-success{% elif kelompok.unit_usaha >= 4 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ kelompok.unit_usaha }}
+                        </div>
+                        <small class="text-muted">Unit Usaha</small>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="h3 {% if kelompok.kas >= 7 %}text-success{% elif kelompok.kas >= 4 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ kelompok.kas }}
+                        </div>
+                        <small class="text-muted">Kas</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Fuzzifikasi -->
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-diagram-3 me-2"></i> Nilai Keanggotaan Fuzzy (Fuzzifikasi)
+            </div>
+            <div class="card-body">
+                {% for var_code, var_label in variabel_list %}
+                <div class="mb-4">
+                    <h6 class="fw-bold">
+                        {{ var_label }}
+                        <small class="text-muted fw-normal">
+                            (Nilai crisp: 
+                            {% if var_code == 'usia' %}{{ kelompok.usia }}
+                            {% elif var_code == 'jumlah_anggota' %}{{ kelompok.jumlah_anggota }}
+                            {% elif var_code == 'luas_lahan' %}{{ kelompok.luas_lahan }}
+                            {% elif var_code == 'frekuensi_bantuan' %}{{ kelompok.frekuensi_bantuan }}
+                            {% elif var_code == 'sdm' %}{{ kelompok.sdm }}
+                            {% elif var_code == 'unit_usaha' %}{{ kelompok.unit_usaha }}
+                            {% elif var_code == 'kas' %}{{ kelompok.kas }}
+                            {% endif %})
+                        </small>
+                    </h6>
+                    
+                    {% with memberships=fuzzifikasi.memberships %}
+                        {% for kat_code, kat_label in kategori_variabel|get_item:var_code %}
+                            {% with mu_value=memberships|get_item:var_code|get_item:kat_code %}
+                            <div class="d-flex align-items-center mb-2">
+                                <div style="width: 100px;">
+                                    <small>{{ kat_label }}</small>
+                                </div>
+                                <div class="flex-grow-1 mx-2">
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar 
+                                            {% if mu_value >= 0.7 %}bg-success
+                                            {% elif mu_value >= 0.3 %}bg-warning
+                                            {% elif mu_value > 0 %}bg-danger
+                                            {% else %}bg-light{% endif %}"
+                                            style="width: {{ mu_value|floatformat:2|default:0 }}00%;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="width: 60px;">
+                                    <span class="badge 
+                                        {% if mu_value >= 0.7 %}bg-success
+                                        {% elif mu_value >= 0.3 %}bg-warning
+                                        {% elif mu_value > 0 %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        μ = {{ mu_value|floatformat:4 }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endwith %}
+                        {% endfor %}
+                    {% endwith %}
+                </div>
+                {% if not forloop.last %}<hr>{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Metadata -->
+<div class="card mt-3">
+    <div class="card-body">
+        <small class="text-muted">
+            <i class="bi bi-clock me-1"></i> 
+            Ditambahkan: {{ kelompok.created_at|date:"d F Y, H:i" }} | 
+            Terakhir diubah: {{ kelompok.updated_at|date:"d F Y, H:i" }}
+        </small>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Template filter implementation in JavaScript for dict access
+</script>
+{% endblock %}

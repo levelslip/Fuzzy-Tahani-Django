@@ -1,0 +1,213 @@
+{% extends 'fuzzy/base.html' %}
+
+{% comment %}
+Dashboard - Halaman Utama SPK Fuzzy Database Model Tahani
+
+Menampilkan:
+- Statistik kelompok
+- Rata-rata nilai
+- Kelompok terbaru
+{% endcomment %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Dashboard</li>
+{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon primary">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ statistik.total }}</h3>
+                <p>Total Kelompok</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon success">
+                <i class="bi bi-person-check-fill"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ statistik.avg_anggota|floatformat:1 }}</h3>
+                <p>Rata-rata Anggota</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon warning">
+                <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ statistik.avg_lahan|floatformat:2 }} Ha</h3>
+                <p>Rata-rata Lahan</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon danger">
+                <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ statistik.avg_sdm|floatformat:1 }}</h3>
+                <p>Rata-rata SDM</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Quick Actions -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-lightning-fill me-2"></i> Aksi Cepat
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'kelompok_add' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i> Tambah Kelompok
+                    </a>
+                    <a href="{% url 'seleksi_and' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-intersect me-2"></i> Seleksi Fuzzy AND
+                    </a>
+                    <a href="{% url 'seleksi_or' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-union me-2"></i> Seleksi Fuzzy OR
+                    </a>
+                    <a href="{% url 'seleksi_multi' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-filter-square me-2"></i> Seleksi Multi-Kriteria
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistik Skor -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-bar-chart-fill me-2"></i> Rata-rata Skor
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Kualitas SDM</span>
+                        <span class="fw-bold">{{ statistik.avg_sdm|floatformat:1 }}/10</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-primary" style="width: {{ statistik.avg_sdm|default:0 }}0%;"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Unit Usaha</span>
+                        <span class="fw-bold">{{ statistik.avg_unit_usaha|floatformat:1 }}/10</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-success" style="width: {{ statistik.avg_unit_usaha|default:0 }}0%;"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Kas</span>
+                        <span class="fw-bold">{{ statistik.avg_kas|floatformat:1 }}/10</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-warning" style="width: {{ statistik.avg_kas|default:0 }}0%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Kelompok Terbaru -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clock-history me-2"></i> Kelompok Terbaru</span>
+                <a href="{% url 'kelompok_list' %}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
+            </div>
+            <div class="card-body p-0">
+                {% if kelompok_terbaru %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nama Kelompok</th>
+                                <th class="text-center">Usia</th>
+                                <th class="text-center">Anggota</th>
+                                <th class="text-center">SDM</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for k in kelompok_terbaru %}
+                            <tr>
+                                <td>
+                                    <strong>{{ k.nama }}</strong>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">{{ k.usia }} tahun</span>
+                                </td>
+                                <td class="text-center">{{ k.jumlah_anggota }}</td>
+                                <td class="text-center">
+                                    <span class="badge {% if k.sdm >= 7 %}bg-success{% elif k.sdm >= 4 %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ k.sdm }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="{% url 'kelompok_detail' k.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3">Belum ada data kelompok</p>
+                    <a href="{% url 'kelompok_add' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i> Tambah Kelompok Pertama
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Info Card -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-info-circle me-2"></i> Tentang SPK Fuzzy Tahani</h5>
+                <p class="card-text text-muted">
+                    Sistem Pendukung Keputusan ini menggunakan metode <strong>Fuzzy Database Model Tahani</strong> 
+                    untuk membantu menentukan penerima bantuan sosial berdasarkan kriteria yang telah ditentukan.
+                </p>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-intersect me-2 text-primary"></i> Operator AND</h6>
+                        <p class="small text-muted mb-2">
+                            Menggunakan fungsi <code>MIN(μA, μB)</code> untuk mendapatkan fire strength.
+                            Cocok untuk kriteria yang harus dipenuhi semua.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-union me-2 text-success"></i> Operator OR</h6>
+                        <p class="small text-muted mb-2">
+                            Menggunakan fungsi <code>MAX(μA, μB)</code> untuk mendapatkan fire strength.
+                            Cocok untuk kriteria yang cukup dipenuhi salah satu.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
