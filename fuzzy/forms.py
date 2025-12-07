@@ -115,13 +115,14 @@ class SeleksiFuzzyForm(forms.Form):
     User dapat memilih:
     - Variabel 1 dan kategori 1
     - Variabel 2 dan kategori 2
-    - Operator (AND/OR)
+    
+    Operator (AND/OR) ditentukan dari URL, bukan dari form.
     """
     
-    OPERATOR_CHOICES = [
-        ('AND', 'AND (Minimum)'),
-        ('OR', 'OR (Maximum)'),
-    ]
+    # Gabungkan semua kategori untuk validasi
+    ALL_KATEGORI_CHOICES = []
+    for var, kats in KATEGORI_VARIABEL.items():
+        ALL_KATEGORI_CHOICES.extend(kats)
     
     variabel_1 = forms.ChoiceField(
         choices=VARIABEL_LIST,
@@ -133,7 +134,7 @@ class SeleksiFuzzyForm(forms.Form):
     )
     
     kategori_1 = forms.ChoiceField(
-        choices=[],  # Will be populated dynamically
+        choices=[],
         widget=forms.Select(attrs={
             'class': 'form-select',
             'id': 'kategori_1'
@@ -151,7 +152,7 @@ class SeleksiFuzzyForm(forms.Form):
     )
     
     kategori_2 = forms.ChoiceField(
-        choices=[],  # Will be populated dynamically
+        choices=[],
         widget=forms.Select(attrs={
             'class': 'form-select',
             'id': 'kategori_2'
@@ -159,24 +160,12 @@ class SeleksiFuzzyForm(forms.Form):
         label='Kategori 2'
     )
     
-    operator = forms.ChoiceField(
-        choices=OPERATOR_CHOICES,
-        widget=forms.Select(attrs={
-            'class': 'form-select'
-        }),
-        label='Operator'
-    )
-    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Set default choices for kategori (will be updated via JavaScript)
         # Default to first variable's categories
         default_var = VARIABEL_LIST[0][0]
         default_choices = KATEGORI_VARIABEL.get(default_var, [])
-        
-        self.fields['kategori_1'].choices = default_choices
-        self.fields['kategori_2'].choices = default_choices
         
         # If form is bound (POST), update choices based on selected variable
         if self.data:
@@ -185,6 +174,10 @@ class SeleksiFuzzyForm(forms.Form):
             
             self.fields['kategori_1'].choices = KATEGORI_VARIABEL.get(var1, default_choices)
             self.fields['kategori_2'].choices = KATEGORI_VARIABEL.get(var2, default_choices)
+        else:
+            self.fields['kategori_1'].choices = default_choices
+            self.fields['kategori_2'].choices = default_choices
+
 
 
 class SeleksiFuzzyMultiForm(forms.Form):

@@ -204,6 +204,7 @@ def seleksi_and(request):
     """
     hasil = None
     kriteria_teks = []
+    form = SeleksiFuzzyForm()
     
     if request.method == 'POST':
         form = SeleksiFuzzyForm(request.POST)
@@ -230,8 +231,9 @@ def seleksi_and(request):
                 var_label = dict(VARIABEL_LIST).get(var, var)
                 kat_label = dict(KATEGORI_VARIABEL.get(var, [])).get(kat, kat)
                 kriteria_teks.append(f"{var_label} = {kat_label}")
-    else:
-        form = SeleksiFuzzyForm()
+        else:
+            # Debug: Print form errors
+            print(f"Form errors: {form.errors}")
     
     context = {
         'title': 'Seleksi Fuzzy AND',
@@ -254,6 +256,7 @@ def seleksi_or(request):
     """
     hasil = None
     kriteria_teks = []
+    form = SeleksiFuzzyForm()
     
     if request.method == 'POST':
         form = SeleksiFuzzyForm(request.POST)
@@ -280,8 +283,9 @@ def seleksi_or(request):
                 var_label = dict(VARIABEL_LIST).get(var, var)
                 kat_label = dict(KATEGORI_VARIABEL.get(var, [])).get(kat, kat)
                 kriteria_teks.append(f"{var_label} = {kat_label}")
-    else:
-        form = SeleksiFuzzyForm()
+        else:
+            # Debug: Print form errors
+            print(f"Form errors: {form.errors}")
     
     context = {
         'title': 'Seleksi Fuzzy OR',

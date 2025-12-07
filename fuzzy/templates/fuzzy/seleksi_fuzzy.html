@@ -1,4 +1,5 @@
 {% extends 'fuzzy/base.html' %}
+{% load fuzzy_tags %}
 
 {% comment %}
 Halaman Seleksi Fuzzy (AND dan OR)
@@ -23,6 +24,13 @@ Template ini digunakan untuk seleksi AND maupun OR.
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> Periksa kembali pilihan Anda.
+                        {{ form.errors }}
+                    </div>
+                    {% endif %}
                     
                     <!-- Kriteria 1 -->
                     <div class="alert alert-light">
@@ -208,7 +216,7 @@ Template ini digunakan untuk seleksi AND maupun OR.
     };
     
     // Update kategori dropdown ketika variabel berubah
-    function updateKategori(variabelSelect, kategoriSelect) {
+    function updateKategori(variabelSelect, kategoriSelect, selectedValue) {
         const variabel = variabelSelect.value;
         const kategori = kategoriVariabel[variabel] || [];
         
@@ -220,17 +228,36 @@ Template ini digunakan untuk seleksi AND maupun OR.
             const option = document.createElement('option');
             option.value = k.value;
             option.textContent = k.label;
+            if (selectedValue && k.value === selectedValue) {
+                option.selected = true;
+            }
             kategoriSelect.appendChild(option);
         });
     }
     
-    // Event listeners
-    document.getElementById('variabel_1').addEventListener('change', function() {
-        updateKategori(this, document.getElementById('kategori_1'));
-    });
-    
-    document.getElementById('variabel_2').addEventListener('change', function() {
-        updateKategori(this, document.getElementById('kategori_2'));
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const var1 = document.getElementById('variabel_1');
+        const kat1 = document.getElementById('kategori_1');
+        const var2 = document.getElementById('variabel_2');
+        const kat2 = document.getElementById('kategori_2');
+        
+        // Get current selected values (for POST reload)
+        const currentKat1 = kat1.value;
+        const currentKat2 = kat2.value;
+        
+        // Update dropdowns on load
+        updateKategori(var1, kat1, currentKat1);
+        updateKategori(var2, kat2, currentKat2);
+        
+        // Event listeners for change
+        var1.addEventListener('change', function() {
+            updateKategori(this, kat1, null);
+        });
+        
+        var2.addEventListener('change', function() {
+            updateKategori(this, kat2, null);
+        });
     });
 </script>
 {% endblock %}
