@@ -7,7 +7,7 @@ Template ini digunakan untuk form tambah dan edit data kelompok.
 {% endcomment %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'kelompok_list' %}">Data Kelompok</a></li>
+<li class="breadcrumb-item"><a href="{% url 'fuzzy:kelompok_list' %}">Data Kelompok</a></li>
 <li class="breadcrumb-item active">{{ action }} Kelompok</li>
 {% endblock %}
 
@@ -122,7 +122,7 @@ Template ini digunakan untuk form tambah dan edit data kelompok.
                     <hr>
                     
                     <div class="d-flex justify-content-between">
-                        <a href="{% url 'kelompok_list' %}" class="btn btn-outline-secondary">
+                        <a href="{% url 'fuzzy:kelompok_list' %}" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i> Kembali
                         </a>
                         <button type="submit" class="btn btn-primary">

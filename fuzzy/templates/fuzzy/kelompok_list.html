@@ -11,7 +11,7 @@ Menampilkan semua data kelompok dalam bentuk tabel dengan aksi CRUD.
 {% endblock %}
 
 {% block header_actions %}
-<a href="{% url 'kelompok_add' %}" class="btn btn-primary">
+<a href="{% url 'fuzzy:kelompok_add' %}" class="btn btn-primary">
     <i class="bi bi-plus-circle me-2"></i> Tambah Kelompok
 </a>
 {% endblock %}
@@ -72,13 +72,13 @@ Menampilkan semua data kelompok dalam bentuk tabel dengan aksi CRUD.
                         </td>
                         <td class="text-center">
                             <div class="btn-group btn-group-sm">
-                                <a href="{% url 'kelompok_detail' kelompok.pk %}" class="btn btn-outline-info" title="Detail">
+                                <a href="{% url 'fuzzy:kelompok_detail' kelompok.pk %}" class="btn btn-outline-info" title="Detail">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="{% url 'kelompok_edit' kelompok.pk %}" class="btn btn-outline-warning" title="Edit">
+                                <a href="{% url 'fuzzy:kelompok_edit' kelompok.pk %}" class="btn btn-outline-warning" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="{% url 'kelompok_delete' kelompok.pk %}" class="btn btn-outline-danger" title="Hapus">
+                                <a href="{% url 'fuzzy:kelompok_delete' kelompok.pk %}" class="btn btn-outline-danger" title="Hapus">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
@@ -93,7 +93,7 @@ Menampilkan semua data kelompok dalam bentuk tabel dengan aksi CRUD.
             <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
             <h5 class="text-muted mt-3">Belum Ada Data Kelompok</h5>
             <p class="text-muted">Mulai dengan menambahkan data kelompok pertama.</p>
-            <a href="{% url 'kelompok_add' %}" class="btn btn-primary">
+            <a href="{% url 'fuzzy:kelompok_add' %}" class="btn btn-primary">
                 <i class="bi bi-plus-circle me-2"></i> Tambah Kelompok
             </a>
         </div>

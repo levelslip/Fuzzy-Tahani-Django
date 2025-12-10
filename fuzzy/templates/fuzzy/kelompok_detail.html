@@ -8,16 +8,16 @@ Menampilkan detail kelompok beserta nilai fuzzifikasi lengkap.
 {% endcomment %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'kelompok_list' %}">Data Kelompok</a></li>
+<li class="breadcrumb-item"><a href="{% url 'fuzzy:kelompok_list' %}">Data Kelompok</a></li>
 <li class="breadcrumb-item active">{{ kelompok.nama }}</li>
 {% endblock %}
 
 {% block header_actions %}
 <div class="btn-group">
-    <a href="{% url 'kelompok_edit' kelompok.pk %}" class="btn btn-warning">
+    <a href="{% url 'fuzzy:kelompok_edit' kelompok.pk %}" class="btn btn-warning">
         <i class="bi bi-pencil me-2"></i> Edit
     </a>
-    <a href="{% url 'kelompok_delete' kelompok.pk %}" class="btn btn-danger">
+    <a href="{% url 'fuzzy:kelompok_delete' kelompok.pk %}" class="btn btn-danger">
         <i class="bi bi-trash me-2"></i> Hapus
     </a>
 </div>
@@ -126,7 +126,7 @@ Menampilkan detail kelompok beserta nilai fuzzifikasi lengkap.
                                             {% elif mu_value >= 0.3 %}bg-warning
                                             {% elif mu_value > 0 %}bg-danger
                                             {% else %}bg-light{% endif %}"
-                                            style="width: {{ mu_value|floatformat:2|default:0 }}00%;">
+                                            style="width: {{ mu_value|multiply:100|floatformat:0 }}%;">
                                         </div>
                                     </div>
                                 </div>

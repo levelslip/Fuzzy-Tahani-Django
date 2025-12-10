@@ -5,7 +5,7 @@ Halaman Konfirmasi Hapus Kelompok
 {% endcomment %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'kelompok_list' %}">Data Kelompok</a></li>
+<li class="breadcrumb-item"><a href="{% url 'fuzzy:kelompok_list' %}">Data Kelompok</a></li>
 <li class="breadcrumb-item active">Hapus Kelompok</li>
 {% endblock %}
 
@@ -45,7 +45,7 @@ Halaman Konfirmasi Hapus Kelompok
                 <form method="post" class="mt-4">
                     {% csrf_token %}
                     <div class="d-flex justify-content-center gap-3">
-                        <a href="{% url 'kelompok_list' %}" class="btn btn-outline-secondary">
+                        <a href="{% url 'fuzzy:kelompok_list' %}" class="btn btn-outline-secondary">
                             <i class="bi bi-x-lg me-2"></i> Batal
                         </a>
                         <button type="submit" class="btn btn-danger">

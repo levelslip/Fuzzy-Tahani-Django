@@ -151,7 +151,9 @@ Template ini digunakan untuk seleksi AND maupun OR.
                                         </span>
                                     </td>
                                     <td>
-                                        <strong>{{ item.kelompok.nama }}</strong>
+                                        <a href="{% url 'fuzzy:kelompok_detail' item.kelompok.pk %}" class="text-decoration-none">
+                                            <strong>{{ item.kelompok.nama }}</strong>
+                                        </a>
                                         <br>
                                         <small class="text-muted">
                                             Usia: {{ item.kelompok.usia }} thn | 

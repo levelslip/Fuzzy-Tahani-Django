@@ -19,6 +19,8 @@ URL Patterns:
 from django.urls import path
 from . import views
 
+app_name = 'fuzzy'
+
 urlpatterns = [
     # Dashboard
     path('', views.dashboard, name='dashboard'),

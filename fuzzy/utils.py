@@ -755,8 +755,10 @@ def seleksi_fuzzy(kelompok_list, kriteria, operator='AND'):
         # Ambil data kelompok
         if hasattr(kelompok, 'get_data_dict'):
             data = kelompok.get_data_dict()
+            kelompok_obj = kelompok  # Simpan object asli
         else:
             data = kelompok
+            kelompok_obj = kelompok  # Jika sudah dict, gunakan apa adanya
         
         # Hitung membership value untuk setiap kriteria
         membership_values = []
@@ -780,7 +782,7 @@ def seleksi_fuzzy(kelompok_list, kriteria, operator='AND'):
         # Hanya tambahkan jika fire strength > 0
         if fire_strength > 0:
             hasil.append({
-                'kelompok': data,
+                'kelompok': kelompok_obj,  # Gunakan object asli
                 'membership_values': detail_membership,
                 'fire_strength': round(fire_strength, 4)
             })

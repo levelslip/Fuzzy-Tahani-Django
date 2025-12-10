@@ -311,7 +311,7 @@ Menggunakan Bootstrap 5 untuk styling.
         
         <ul class="sidebar-menu">
             <li class="sidebar-menu-item">
-                <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <a href="{% url 'fuzzy:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                     <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
             </li>
@@ -319,12 +319,12 @@ Menggunakan Bootstrap 5 untuk styling.
             <div class="sidebar-section">Data</div>
             
             <li class="sidebar-menu-item">
-                <a href="{% url 'kelompok_list' %}" class="{% if 'kelompok' in request.resolver_match.url_name %}active{% endif %}">
+                <a href="{% url 'fuzzy:kelompok_list' %}" class="{% if 'kelompok' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="bi bi-people"></i> Data Kelompok
                 </a>
             </li>
             <li class="sidebar-menu-item">
-                <a href="{% url 'kelompok_add' %}">
+                <a href="{% url 'fuzzy:kelompok_add' %}">
                     <i class="bi bi-plus-circle"></i> Tambah Kelompok
                 </a>
             </li>
@@ -332,17 +332,17 @@ Menggunakan Bootstrap 5 untuk styling.
             <div class="sidebar-section">Seleksi Fuzzy</div>
             
             <li class="sidebar-menu-item">
-                <a href="{% url 'seleksi_and' %}" class="{% if request.resolver_match.url_name == 'seleksi_and' %}active{% endif %}">
+                <a href="{% url 'fuzzy:seleksi_and' %}" class="{% if request.resolver_match.url_name == 'seleksi_and' %}active{% endif %}">
                     <i class="bi bi-intersect"></i> Seleksi AND
                 </a>
             </li>
             <li class="sidebar-menu-item">
-                <a href="{% url 'seleksi_or' %}" class="{% if request.resolver_match.url_name == 'seleksi_or' %}active{% endif %}">
+                <a href="{% url 'fuzzy:seleksi_or' %}" class="{% if request.resolver_match.url_name == 'seleksi_or' %}active{% endif %}">
                     <i class="bi bi-union"></i> Seleksi OR
                 </a>
             </li>
             <li class="sidebar-menu-item">
-                <a href="{% url 'seleksi_multi' %}" class="{% if request.resolver_match.url_name == 'seleksi_multi' %}active{% endif %}">
+                <a href="{% url 'fuzzy:seleksi_multi' %}" class="{% if request.resolver_match.url_name == 'seleksi_multi' %}active{% endif %}">
                     <i class="bi bi-filter-square"></i> Multi-Kriteria
                 </a>
             </li>
@@ -358,7 +358,7 @@ Menggunakan Bootstrap 5 untuk styling.
                     <h1>{% block page_title %}{{ title }}{% endblock %}</h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'fuzzy:dashboard' %}">Home</a></li>
                             {% block breadcrumb %}{% endblock %}
                         </ol>
                     </nav>

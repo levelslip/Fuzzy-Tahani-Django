@@ -139,7 +139,9 @@ Form untuk memilih banyak kriteria sekaligus.
                                             </span>
                                         </td>
                                         <td>
-                                            <strong>{{ item.kelompok.nama }}</strong>
+                                            <a href="{% url 'fuzzy:kelompok_detail' item.kelompok.pk %}" class="text-decoration-none">
+                                                <strong>{{ item.kelompok.nama }}</strong>
+                                            </a>
                                         </td>
                                         <td>
                                             <small class="text-muted">
