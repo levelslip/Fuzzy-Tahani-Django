@@ -1,3 +1,0 @@
-# Runtime Python version untuk Railway/Render
-
-python-3.11.6
