@@ -78,7 +78,7 @@ fuzzy-tahani/
 │   ├── urls.py
 │   ├── utils.py               # Fungsi membership & fire strength
 │   └── views.py
-├── tahani/                    # Django project config
+├── config/                    # Django project config
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
@@ -149,7 +149,7 @@ Cocok ketika **salah satu kriteria sudah cukup**.
 1. Push code ke GitHub
 2. Create new Web Service di Render
 3. Build Command: `pip install -r requirements.txt`
-4. Start Command: `gunicorn tahani.wsgi:application`
+4. Start Command: `gunicorn config.wsgi:application`
 
 ## 📸 Screenshots
 
