@@ -96,10 +96,10 @@ Menampilkan:
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
                         <span>Kualitas SDM</span>
-                        <span class="fw-bold">{{ statistik.avg_sdm|floatformat:1 }}/10</span>
+                        <span class="fw-bold">{{ statistik.avg_sdm|floatformat:1 }}/100</span>
                     </div>
                     <div class="progress" style="height: 10px;">
-                        <div class="progress-bar bg-primary" style="width: {{ statistik.avg_sdm|default:0 }}0%;"></div>
+                        <div class="progress-bar bg-primary" style="width: {% widthratio statistik.avg_sdm 100 100 %}%;"></div>
                     </div>
                 </div>
                 <div class="mb-3">
@@ -108,16 +108,16 @@ Menampilkan:
                         <span class="fw-bold">{{ statistik.avg_unit_usaha|floatformat:1 }}/10</span>
                     </div>
                     <div class="progress" style="height: 10px;">
-                        <div class="progress-bar bg-success" style="width: {{ statistik.avg_unit_usaha|default:0 }}0%;"></div>
+                        <div class="progress-bar bg-success" style="width: {% widthratio statistik.avg_unit_usaha 10 100 %}%;"></div>
                     </div>
                 </div>
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
                         <span>Kas</span>
-                        <span class="fw-bold">{{ statistik.avg_kas|floatformat:1 }}/10</span>
+                        <span class="fw-bold">{{ statistik.avg_kas|floatformat:1 }}/50</span>
                     </div>
                     <div class="progress" style="height: 10px;">
-                        <div class="progress-bar bg-warning" style="width: {{ statistik.avg_kas|default:0 }}0%;"></div>
+                        <div class="progress-bar bg-warning" style="width: {% widthratio statistik.avg_kas 50 100 %}%;"></div>
                     </div>
                 </div>
             </div>
