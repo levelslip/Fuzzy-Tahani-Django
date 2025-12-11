@@ -94,7 +94,7 @@ def kelompok_add(request):
         if form.is_valid():
             kelompok = form.save()
             messages.success(request, f'Kelompok "{kelompok.nama}" berhasil ditambahkan!')
-            return redirect('kelompok_list')
+            return redirect('fuzzy:kelompok_list')
         else:
             messages.error(request, 'Terjadi kesalahan. Periksa kembali data yang dimasukkan.')
     else:
@@ -125,7 +125,7 @@ def kelompok_edit(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, f'Kelompok "{kelompok.nama}" berhasil diperbarui!')
-            return redirect('kelompok_list')
+            return redirect('fuzzy:kelompok_list')
         else:
             messages.error(request, 'Terjadi kesalahan. Periksa kembali data yang dimasukkan.')
     else:
@@ -156,7 +156,7 @@ def kelompok_delete(request, pk):
     if request.method == 'POST':
         kelompok.delete()
         messages.success(request, f'Kelompok "{nama}" berhasil dihapus!')
-        return redirect('kelompok_list')
+        return redirect('fuzzy:kelompok_list')
     
     context = {
         'title': f'Hapus Kelompok: {nama}',
