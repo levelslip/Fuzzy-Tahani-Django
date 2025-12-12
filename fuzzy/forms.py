@@ -4,10 +4,11 @@ Forms untuk aplikasi SPK Fuzzy Database Model Tahani
 File ini berisi form-form Django untuk:
 1. CRUD data kelompok
 2. Seleksi fuzzy (AND/OR)
+3. Pengaturan parameter fuzzy
 """
 
 from django import forms
-from .models import Kelompok
+from .models import Kelompok, FuzzyParameter
 from .utils import VARIABEL_LIST, KATEGORI_VARIABEL
 
 
@@ -202,3 +203,85 @@ class SeleksiFuzzyMultiForm(forms.Form):
     
     # Checkbox fields for each variable/category combination
     # These will be generated dynamically in the template
+
+
+class FuzzyParameterForm(forms.ModelForm):
+    """
+    Form untuk mengedit parameter fuzzy
+    
+    Form ini digunakan untuk mengubah nilai parameter membership function
+    secara dinamis.
+    """
+    
+    class Meta:
+        model = FuzzyParameter
+        fields = [
+            'variabel',
+            'kategori',
+            'tipe_fungsi',
+            'param_a',
+            'param_b',
+            'param_c',
+            'keterangan'
+        ]
+        widgets = {
+            'variabel': forms.Select(attrs={
+                'class': 'form-select',
+                'readonly': 'readonly'
+            }),
+            'kategori': forms.TextInput(attrs={
+                'class': 'form-control',
+                'readonly': 'readonly'
+            }),
+            'tipe_fungsi': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'param_a': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'placeholder': 'Nilai parameter A'
+            }),
+            'param_b': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'placeholder': 'Nilai parameter B'
+            }),
+            'param_c': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'placeholder': 'Nilai parameter C (opsional)'
+            }),
+            'keterangan': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Keterangan atau penjelasan parameter'
+            }),
+        }
+    
+    def clean(self):
+        """Validasi parameter"""
+        cleaned_data = super().clean()
+        tipe_fungsi = cleaned_data.get('tipe_fungsi')
+        param_a = cleaned_data.get('param_a')
+        param_b = cleaned_data.get('param_b')
+        param_c = cleaned_data.get('param_c')
+        
+        # Validasi: param_b harus lebih besar dari param_a
+        if param_a is not None and param_b is not None:
+            if param_b <= param_a:
+                raise forms.ValidationError(
+                    'Parameter B harus lebih besar dari Parameter A'
+                )
+        
+        # Validasi: fungsi segitiga harus memiliki param_c
+        if tipe_fungsi == 'segitiga':
+            if param_c is None:
+                raise forms.ValidationError(
+                    'Fungsi segitiga memerlukan Parameter C'
+                )
+            if param_c <= param_b:
+                raise forms.ValidationError(
+                    'Parameter C harus lebih besar dari Parameter B'
+                )
+        
+        return cleaned_data

@@ -1,0 +1,46 @@
+{% extends 'fuzzy/base.html' %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'fuzzy:parameter_list' %}">Parameter Fuzzy</a></li>
+<li class="breadcrumb-item active" aria-current="page">Reset Parameter</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> Konfirmasi Reset Parameter
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Perhatian!</strong> Tindakan ini akan menghapus semua parameter kustom.
+                </div>
+
+                <p>Anda akan mereset <strong>{{ total_params }}</strong> parameter fuzzy.</p>
+                
+                <p class="text-muted">
+                    Setelah reset, sistem akan menggunakan nilai parameter default yang didefinisikan dalam kode.
+                    Anda dapat menginisialisasi ulang parameter default dengan mengklik tombol "Inisialisasi Default"
+                    di halaman daftar parameter.
+                </p>
+
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'fuzzy:parameter_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Batal
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-arrow-counterclockwise"></i> Ya, Reset Parameter
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

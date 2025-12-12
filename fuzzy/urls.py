@@ -41,4 +41,10 @@ urlpatterns = [
     path('api/kategori/<str:variabel>/', views.api_kategori, name='api_kategori'),
     path('api/fuzzifikasi/<int:pk>/', views.api_fuzzifikasi, name='api_fuzzifikasi'),
     path('api/seleksi/', views.api_seleksi, name='api_seleksi'),
+    
+    # Pengaturan Parameter Fuzzy
+    path('parameter/', views.parameter_list, name='parameter_list'),
+    path('parameter/<int:pk>/edit/', views.parameter_edit, name='parameter_edit'),
+    path('parameter/reset/', views.parameter_reset, name='parameter_reset'),
+    path('parameter/initialize/', views.parameter_initialize, name='parameter_initialize'),
 ]

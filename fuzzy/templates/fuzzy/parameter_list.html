@@ -1,0 +1,140 @@
+{% extends 'fuzzy/base.html' %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">Parameter Fuzzy</li>
+{% endblock %}
+
+{% block header_actions %}
+<div>
+    <a href="{% url 'fuzzy:parameter_initialize' %}" class="btn btn-success btn-sm me-2">
+        <i class="bi bi-arrow-repeat"></i> Inisialisasi Default
+    </a>
+    <a href="{% url 'fuzzy:parameter_reset' %}" class="btn btn-warning btn-sm">
+        <i class="bi bi-arrow-counterclockwise"></i> Reset Parameter
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        {% if parameters %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> 
+                Parameter fuzzy digunakan untuk menentukan fungsi keanggotaan. 
+                Anda dapat mengubah parameter ini untuk menyesuaikan dengan kebutuhan analisis.
+            </div>
+
+            {% for variabel, params in params_by_var.items %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear"></i> {{ variabel }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Kategori</th>
+                                    <th>Tipe Fungsi</th>
+                                    <th>Parameter A</th>
+                                    <th>Parameter B</th>
+                                    <th>Parameter C</th>
+                                    <th>Keterangan</th>
+                                    <th class="text-end">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for param in params %}
+                                <tr>
+                                    <td><strong>{{ param.kategori }}</strong></td>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            {{ param.get_tipe_fungsi_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ param.param_a }}</td>
+                                    <td>{{ param.param_b }}</td>
+                                    <td>
+                                        {% if param.param_c %}
+                                            {{ param.param_c }}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ param.keterangan|truncatewords:10 }}</small>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'fuzzy:parameter_edit' param.pk %}" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-exclamation-circle" style="font-size: 3rem; color: #f39c12;"></i>
+                    <h4 class="mt-3">Belum Ada Parameter</h4>
+                    <p class="text-muted">
+                        Parameter fuzzy belum diinisialisasi. Klik tombol di bawah untuk menggunakan parameter default.
+                    </p>
+                    <a href="{% url 'fuzzy:parameter_initialize' %}" class="btn btn-primary">
+                        <i class="bi bi-arrow-repeat"></i> Inisialisasi Parameter Default
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle"></i> Penjelasan Tipe Fungsi
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6><i class="bi bi-arrow-down-left"></i> Bahu Kiri (Left Shoulder)</h6>
+                        <p class="text-muted small">
+                            Nilai maksimum di kiri (≤a), menurun linear hingga b, lalu 0.
+                            Contoh: "baru", "jarang", "sempit"
+                        </p>
+                        <p class="small"><strong>Formula:</strong> μ(x) = (b-x)/(b-a)</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="bi bi-triangle"></i> Segitiga (Triangle)</h6>
+                        <p class="text-muted small">
+                            Nilai 0 di a, naik ke puncak di b, turun ke 0 di c.
+                            Contoh: "sedang", "cukup"
+                        </p>
+                        <p class="small"><strong>Formula:</strong> μ(x) = (x-a)/(b-a) atau (c-x)/(c-b)</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="bi bi-arrow-up-right"></i> Bahu Kanan (Right Shoulder)</h6>
+                        <p class="text-muted small">
+                            Nilai 0 di kiri (≤a), naik linear hingga b, lalu maksimum.
+                            Contoh: "lama", "sering", "luas"
+                        </p>
+                        <p class="small"><strong>Formula:</strong> μ(x) = (x-a)/(b-a)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

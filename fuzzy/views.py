@@ -14,8 +14,8 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Count, Avg
 
-from .models import Kelompok
-from .forms import KelompokForm, SeleksiFuzzyForm
+from .models import Kelompok, FuzzyParameter
+from .forms import KelompokForm, SeleksiFuzzyForm, FuzzyParameterForm
 from .utils import (
     seleksi_fuzzy,
     hitung_fuzzifikasi_lengkap,
@@ -419,3 +419,245 @@ def api_seleksi(request):
         })
     
     return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+# =============================================================================
+# PENGATURAN PARAMETER FUZZY
+# =============================================================================
+
+def parameter_list(request):
+    """
+    Halaman Daftar Parameter Fuzzy
+    
+    Menampilkan semua parameter membership function yang dapat diatur.
+    Parameter dikelompokkan berdasarkan variabel.
+    """
+    # Ambil semua parameter, diurutkan berdasarkan variabel dan kategori
+    parameters = FuzzyParameter.objects.all().order_by('variabel', 'kategori')
+    
+    # Kelompokkan parameter berdasarkan variabel
+    params_by_var = {}
+    for param in parameters:
+        var = param.get_variabel_display()
+        if var not in params_by_var:
+            params_by_var[var] = []
+        params_by_var[var].append(param)
+    
+    context = {
+        'title': 'Pengaturan Parameter Fuzzy',
+        'parameters': parameters,
+        'params_by_var': params_by_var,
+    }
+    
+    return render(request, 'fuzzy/parameter_list.html', context)
+
+
+def parameter_edit(request, pk):
+    """
+    Halaman Edit Parameter Fuzzy
+    
+    Form untuk mengedit nilai parameter membership function.
+    
+    Args:
+        pk (int): Primary key parameter yang akan diedit
+    """
+    parameter = get_object_or_404(FuzzyParameter, pk=pk)
+    
+    if request.method == 'POST':
+        form = FuzzyParameterForm(request.POST, instance=parameter)
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request, 
+                f'Parameter "{parameter}" berhasil diperbarui!'
+            )
+            return redirect('fuzzy:parameter_list')
+        else:
+            messages.error(
+                request, 
+                'Terjadi kesalahan. Periksa kembali nilai parameter.'
+            )
+    else:
+        form = FuzzyParameterForm(instance=parameter)
+    
+    context = {
+        'title': f'Edit Parameter: {parameter}',
+        'form': form,
+        'parameter': parameter,
+    }
+    
+    return render(request, 'fuzzy/parameter_form.html', context)
+
+
+def parameter_reset(request):
+    """
+    Reset semua parameter ke nilai default
+    
+    Menghapus semua parameter kustom dan menggunakan nilai default
+    yang didefinisikan di utils.py
+    """
+    if request.method == 'POST':
+        count = FuzzyParameter.objects.count()
+        FuzzyParameter.objects.all().delete()
+        
+        messages.success(
+            request,
+            f'{count} parameter berhasil direset ke nilai default!'
+        )
+        return redirect('fuzzy:parameter_list')
+    
+    context = {
+        'title': 'Reset Parameter Fuzzy',
+        'total_params': FuzzyParameter.objects.count(),
+    }
+    
+    return render(request, 'fuzzy/parameter_reset.html', context)
+
+
+def parameter_initialize(request):
+    """
+    Inisialisasi parameter dari nilai default
+    
+    Membuat record parameter di database berdasarkan nilai default
+    yang didefinisikan di utils.py
+    """
+    from .utils import (
+        USIA_PARAMS, FREKUENSI_PARAMS, LUAS_LAHAN_PARAMS,
+        JUMLAH_ANGGOTA_PARAMS, SKOR_PARAMS
+    )
+    
+    # Mapping kategori ke parameter
+    param_mapping = {
+        'usia': {
+            'kategori': ['baru', 'sedang', 'lama'],
+            'params': USIA_PARAMS,
+            'keterangan': {
+                'baru': '0-2 tahun',
+                'sedang': '1-5 tahun (segitiga)',
+                'lama': 'Lebih dari 4 tahun'
+            }
+        },
+        'frekuensi_bantuan': {
+            'kategori': ['jarang', 'sedang', 'sering'],
+            'params': FREKUENSI_PARAMS,
+            'keterangan': {
+                'jarang': '0-2 kali',
+                'sedang': '1-5 kali (segitiga)',
+                'sering': 'Lebih dari 4 kali'
+            }
+        },
+        'luas_lahan': {
+            'kategori': ['sempit', 'sedang', 'luas'],
+            'params': LUAS_LAHAN_PARAMS,
+            'keterangan': {
+                'sempit': '0-1 hektar',
+                'sedang': '0.5-2.5 hektar (segitiga)',
+                'luas': 'Lebih dari 2 hektar'
+            }
+        },
+        'jumlah_anggota': {
+            'kategori': ['sedikit', 'cukup', 'banyak'],
+            'params': JUMLAH_ANGGOTA_PARAMS,
+            'keterangan': {
+                'sedikit': '0-10 orang',
+                'cukup': '5-25 orang (segitiga)',
+                'banyak': 'Lebih dari 20 orang'
+            }
+        },
+    }
+    
+    # Variabel dengan parameter skor (SDM, Unit Usaha, Kas)
+    skor_vars = ['sdm', 'unit_usaha', 'kas']
+    skor_mapping = {
+        'kategori': ['buruk', 'kurang', 'cukup', 'baik', 'sangat_baik'],
+        'params': SKOR_PARAMS,
+        'keterangan': {
+            'buruk': 'Skor 0-2',
+            'kurang': 'Skor 1-4 (segitiga)',
+            'cukup': 'Skor 3-6 (segitiga)',
+            'baik': 'Skor 5-8 (segitiga)',
+            'sangat_baik': 'Skor 7-10'
+        }
+    }
+    
+    created_count = 0
+    skipped_count = 0
+    
+    # Proses variabel biasa
+    for var, config in param_mapping.items():
+        for kategori in config['kategori']:
+            # Cek apakah parameter sudah ada
+            exists = FuzzyParameter.objects.filter(
+                variabel=var,
+                kategori=kategori
+            ).exists()
+            
+            if not exists:
+                params = config['params'][kategori]
+                
+                # Tentukan tipe fungsi berdasarkan jumlah parameter
+                if 'c' in params:
+                    tipe_fungsi = 'segitiga'
+                elif kategori in ['baru', 'jarang', 'sempit', 'sedikit', 'buruk']:
+                    tipe_fungsi = 'bahu_kiri'
+                else:
+                    tipe_fungsi = 'bahu_kanan'
+                
+                FuzzyParameter.objects.create(
+                    variabel=var,
+                    kategori=kategori,
+                    tipe_fungsi=tipe_fungsi,
+                    param_a=params['a'],
+                    param_b=params['b'],
+                    param_c=params.get('c'),
+                    keterangan=config['keterangan'].get(kategori, '')
+                )
+                created_count += 1
+            else:
+                skipped_count += 1
+    
+    # Proses variabel skor
+    for var in skor_vars:
+        for kategori in skor_mapping['kategori']:
+            exists = FuzzyParameter.objects.filter(
+                variabel=var,
+                kategori=kategori
+            ).exists()
+            
+            if not exists:
+                params = skor_mapping['params'][kategori]
+                
+                # Tentukan tipe fungsi
+                if 'c' in params:
+                    tipe_fungsi = 'segitiga'
+                elif kategori == 'buruk':
+                    tipe_fungsi = 'bahu_kiri'
+                else:
+                    tipe_fungsi = 'bahu_kanan'
+                
+                FuzzyParameter.objects.create(
+                    variabel=var,
+                    kategori=kategori,
+                    tipe_fungsi=tipe_fungsi,
+                    param_a=params['a'],
+                    param_b=params['b'],
+                    param_c=params.get('c'),
+                    keterangan=skor_mapping['keterangan'].get(kategori, '')
+                )
+                created_count += 1
+            else:
+                skipped_count += 1
+    
+    if created_count > 0:
+        messages.success(
+            request,
+            f'{created_count} parameter berhasil diinisialisasi!'
+        )
+    if skipped_count > 0:
+        messages.info(
+            request,
+            f'{skipped_count} parameter sudah ada, dilewati.'
+        )
+    
+    return redirect('fuzzy:parameter_list')
+

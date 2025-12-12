@@ -346,6 +346,14 @@ Menggunakan Bootstrap 5 untuk styling.
                     <i class="bi bi-filter-square"></i> Multi-Kriteria
                 </a>
             </li>
+            
+            <div class="sidebar-section">Pengaturan</div>
+            
+            <li class="sidebar-menu-item">
+                <a href="{% url 'fuzzy:parameter_list' %}" class="{% if 'parameter' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-sliders"></i> Parameter Fuzzy
+                </a>
+            </li>
         </ul>
     </nav>
     

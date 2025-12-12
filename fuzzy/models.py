@@ -132,3 +132,106 @@ class Kelompok(models.Model):
             'unit_usaha': self.unit_usaha,
             'kas': self.kas,
         }
+
+
+class FuzzyParameter(models.Model):
+    """
+    Model untuk menyimpan parameter-parameter membership function
+    
+    Model ini memungkinkan pengguna untuk mengatur parameter fuzzy
+    secara dinamis tanpa perlu mengubah kode.
+    
+    Attributes:
+        variabel (str): Nama variabel (usia, frekuensi_bantuan, dll)
+        kategori (str): Kategori fuzzy (baru, sedang, lama, dll)
+        tipe_fungsi (str): Tipe fungsi (bahu_kiri, segitiga, bahu_kanan)
+        param_a (float): Parameter a
+        param_b (float): Parameter b
+        param_c (float): Parameter c (opsional, untuk fungsi segitiga)
+        keterangan (str): Keterangan parameter
+    """
+    
+    VARIABEL_CHOICES = [
+        ('usia', 'Usia'),
+        ('frekuensi_bantuan', 'Frekuensi Bantuan'),
+        ('luas_lahan', 'Luas Lahan'),
+        ('jumlah_anggota', 'Jumlah Anggota'),
+        ('sdm', 'SDM'),
+        ('unit_usaha', 'Unit Usaha'),
+        ('kas', 'Kas'),
+    ]
+    
+    TIPE_FUNGSI_CHOICES = [
+        ('bahu_kiri', 'Bahu Kiri (Left Shoulder)'),
+        ('segitiga', 'Segitiga (Triangle)'),
+        ('bahu_kanan', 'Bahu Kanan (Right Shoulder)'),
+    ]
+    
+    variabel = models.CharField(
+        max_length=50,
+        choices=VARIABEL_CHOICES,
+        verbose_name="Variabel"
+    )
+    
+    kategori = models.CharField(
+        max_length=50,
+        verbose_name="Kategori",
+        help_text="Contoh: baru, sedang, lama"
+    )
+    
+    tipe_fungsi = models.CharField(
+        max_length=20,
+        choices=TIPE_FUNGSI_CHOICES,
+        verbose_name="Tipe Fungsi"
+    )
+    
+    param_a = models.FloatField(
+        verbose_name="Parameter A",
+        help_text="Batas bawah atau titik awal"
+    )
+    
+    param_b = models.FloatField(
+        verbose_name="Parameter B",
+        help_text="Titik tengah atau batas atas"
+    )
+    
+    param_c = models.FloatField(
+        null=True,
+        blank=True,
+        verbose_name="Parameter C",
+        help_text="Batas atas (hanya untuk fungsi segitiga)"
+    )
+    
+    keterangan = models.TextField(
+        blank=True,
+        verbose_name="Keterangan",
+        help_text="Penjelasan tentang parameter ini"
+    )
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Parameter Fuzzy"
+        verbose_name_plural = "Parameter Fuzzy"
+        ordering = ['variabel', 'kategori']
+        unique_together = ['variabel', 'kategori']
+    
+    def __str__(self):
+        return f"{self.get_variabel_display()} - {self.kategori}"
+    
+    def get_params_dict(self):
+        """
+        Mengembalikan parameter dalam bentuk dictionary
+        
+        Returns:
+            dict: Dictionary parameter sesuai format utils.py
+        """
+        params = {
+            'a': self.param_a,
+            'b': self.param_b,
+        }
+        if self.param_c is not None:
+            params['c'] = self.param_c
+        return params

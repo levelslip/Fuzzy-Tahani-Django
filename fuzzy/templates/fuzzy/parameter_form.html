@@ -1,0 +1,145 @@
+{% extends 'fuzzy/base.html' %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'fuzzy:parameter_list' %}">Parameter Fuzzy</a></li>
+<li class="breadcrumb-item active" aria-current="page">Edit Parameter</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-pencil"></i> Edit Parameter: {{ parameter }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.variabel.label }}</label>
+                            {{ form.variabel }}
+                            {% if form.variabel.help_text %}
+                                <small class="form-text text-muted">{{ form.variabel.help_text }}</small>
+                            {% endif %}
+                            {% if form.variabel.errors %}
+                                <div class="invalid-feedback d-block">{{ form.variabel.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.kategori.label }}</label>
+                            {{ form.kategori }}
+                            {% if form.kategori.help_text %}
+                                <small class="form-text text-muted">{{ form.kategori.help_text }}</small>
+                            {% endif %}
+                            {% if form.kategori.errors %}
+                                <div class="invalid-feedback d-block">{{ form.kategori.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.tipe_fungsi.label }}</label>
+                        {{ form.tipe_fungsi }}
+                        {% if form.tipe_fungsi.help_text %}
+                            <small class="form-text text-muted">{{ form.tipe_fungsi.help_text }}</small>
+                        {% endif %}
+                        {% if form.tipe_fungsi.errors %}
+                            <div class="invalid-feedback d-block">{{ form.tipe_fungsi.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> 
+                        <strong>Panduan Parameter:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li><strong>Bahu Kiri:</strong> Hanya perlu Parameter A dan B</li>
+                            <li><strong>Segitiga:</strong> Perlu Parameter A, B, dan C</li>
+                            <li><strong>Bahu Kanan:</strong> Hanya perlu Parameter A dan B</li>
+                        </ul>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.param_a.label }}</label>
+                            {{ form.param_a }}
+                            {% if form.param_a.help_text %}
+                                <small class="form-text text-muted">{{ form.param_a.help_text }}</small>
+                            {% endif %}
+                            {% if form.param_a.errors %}
+                                <div class="invalid-feedback d-block">{{ form.param_a.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.param_b.label }}</label>
+                            {{ form.param_b }}
+                            {% if form.param_b.help_text %}
+                                <small class="form-text text-muted">{{ form.param_b.help_text }}</small>
+                            {% endif %}
+                            {% if form.param_b.errors %}
+                                <div class="invalid-feedback d-block">{{ form.param_b.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.param_c.label }}</label>
+                            {{ form.param_c }}
+                            {% if form.param_c.help_text %}
+                                <small class="form-text text-muted">{{ form.param_c.help_text }}</small>
+                            {% endif %}
+                            {% if form.param_c.errors %}
+                                <div class="invalid-feedback d-block">{{ form.param_c.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.keterangan.label }}</label>
+                        {{ form.keterangan }}
+                        {% if form.keterangan.help_text %}
+                            <small class="form-text text-muted">{{ form.keterangan.help_text }}</small>
+                        {% endif %}
+                        {% if form.keterangan.errors %}
+                            <div class="invalid-feedback d-block">{{ form.keterangan.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'fuzzy:parameter_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Batal
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Simpan Parameter
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Preview Card -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-graph-up"></i> Preview Fungsi Keanggotaan</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Visualisasi grafik fungsi keanggotaan akan ditampilkan di sini berdasarkan parameter yang diatur.
+                </p>
+                <small class="text-muted">
+                    <i class="bi bi-lightbulb"></i> 
+                    Tip: Pastikan Parameter B selalu lebih besar dari Parameter A, 
+                    dan Parameter C (jika ada) lebih besar dari Parameter B.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

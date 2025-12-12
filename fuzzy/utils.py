@@ -17,7 +17,42 @@ Fungsi keanggotaan yang diimplementasikan:
 
 
 # =============================================================================
-# KONSTANTA - Parameter Membership Function
+# FUNGSI UNTUK LOAD PARAMETER DARI DATABASE
+# =============================================================================
+
+def get_parameter_value(variabel, kategori, default_params):
+    """
+    Get parameter value dari database atau default
+    
+    Args:
+        variabel (str): Nama variabel (usia, frekuensi_bantuan, dll)
+        kategori (str): Nama kategori (baru, sedang, lama, dll)
+        default_params (dict): Parameter default jika tidak ada di database
+    
+    Returns:
+        dict: Dictionary parameter {'a': x, 'b': y, 'c': z (optional)}
+    """
+    try:
+        from .models import FuzzyParameter
+        
+        # Coba ambil dari database
+        param = FuzzyParameter.objects.filter(
+            variabel=variabel,
+            kategori=kategori
+        ).first()
+        
+        if param:
+            return param.get_params_dict()
+    except:
+        # Jika error (misal: tabel belum ada), gunakan default
+        pass
+    
+    # Gunakan default
+    return default_params.get(kategori, {})
+
+
+# =============================================================================
+# KONSTANTA - Parameter Membership Function (Default Values)
 # =============================================================================
 
 # Parameter untuk fungsi keanggotaan USIA (dalam tahun)
@@ -196,7 +231,7 @@ def mu_usia_baru(usia):
         μ(usia) = (2-usia)/(2-0),       jika 0 < usia < 2
         μ(usia) = 0,                    jika usia >= 2
     """
-    params = USIA_PARAMS['baru']
+    params = get_parameter_value('usia', 'baru', USIA_PARAMS)
     return fungsi_bahu_kiri(usia, params['a'], params['b'])
 
 
@@ -218,7 +253,7 @@ def mu_usia_sedang(usia):
         μ(usia) = (usia-1)/(3-1),       jika 1 < usia <= 3
         μ(usia) = (5-usia)/(5-3),       jika 3 < usia < 5
     """
-    params = USIA_PARAMS['sedang']
+    params = get_parameter_value('usia', 'sedang', USIA_PARAMS)
     return fungsi_segitiga(usia, params['a'], params['b'], params['c'])
 
 
@@ -240,6 +275,8 @@ def mu_usia_lama(usia):
         μ(usia) = (usia-4)/(6-4),       jika 4 < usia < 6
         μ(usia) = 1,                    jika usia >= 6
     """
+    params = get_parameter_value('usia', 'lama', USIA_PARAMS)
+    return fungsi_bahu_kanan(usia, params['a'], params['b'])
     params = USIA_PARAMS['lama']
     return fungsi_bahu_kanan(usia, params['a'], params['b'])
 
@@ -261,7 +298,7 @@ def mu_frekuensi_jarang(frekuensi):
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = FREKUENSI_PARAMS['jarang']
+    params = get_parameter_value('frekuensi_bantuan', 'jarang', FREKUENSI_PARAMS)
     return fungsi_bahu_kiri(frekuensi, params['a'], params['b'])
 
 
@@ -278,7 +315,7 @@ def mu_frekuensi_sedang(frekuensi):
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = FREKUENSI_PARAMS['sedang']
+    params = get_parameter_value('frekuensi_bantuan', 'sedang', FREKUENSI_PARAMS)
     return fungsi_segitiga(frekuensi, params['a'], params['b'], params['c'])
 
 
@@ -295,7 +332,7 @@ def mu_frekuensi_sering(frekuensi):
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = FREKUENSI_PARAMS['sering']
+    params = get_parameter_value('frekuensi_bantuan', 'sering', FREKUENSI_PARAMS)
     return fungsi_bahu_kanan(frekuensi, params['a'], params['b'])
 
 
@@ -316,7 +353,7 @@ def mu_lahan_sempit(luas):
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = LUAS_LAHAN_PARAMS['sempit']
+    params = get_parameter_value('luas_lahan', 'sempit', LUAS_LAHAN_PARAMS)
     return fungsi_bahu_kiri(luas, params['a'], params['b'])
 
 
@@ -333,7 +370,7 @@ def mu_lahan_sedang(luas):
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = LUAS_LAHAN_PARAMS['sedang']
+    params = get_parameter_value('luas_lahan', 'sedang', LUAS_LAHAN_PARAMS)
     return fungsi_segitiga(luas, params['a'], params['b'], params['c'])
 
 
@@ -350,7 +387,7 @@ def mu_lahan_luas(luas):
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = LUAS_LAHAN_PARAMS['luas']
+    params = get_parameter_value('luas_lahan', 'luas', LUAS_LAHAN_PARAMS)
     return fungsi_bahu_kanan(luas, params['a'], params['b'])
 
 
@@ -371,7 +408,7 @@ def mu_anggota_sedikit(jumlah):
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = JUMLAH_ANGGOTA_PARAMS['sedikit']
+    params = get_parameter_value('jumlah_anggota', 'sedikit', JUMLAH_ANGGOTA_PARAMS)
     return fungsi_bahu_kiri(jumlah, params['a'], params['b'])
 
 
@@ -388,7 +425,7 @@ def mu_anggota_cukup(jumlah):
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = JUMLAH_ANGGOTA_PARAMS['cukup']
+    params = get_parameter_value('jumlah_anggota', 'cukup', JUMLAH_ANGGOTA_PARAMS)
     return fungsi_segitiga(jumlah, params['a'], params['b'], params['c'])
 
 
@@ -405,7 +442,7 @@ def mu_anggota_banyak(jumlah):
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = JUMLAH_ANGGOTA_PARAMS['banyak']
+    params = get_parameter_value('jumlah_anggota', 'banyak', JUMLAH_ANGGOTA_PARAMS)
     return fungsi_bahu_kanan(jumlah, params['a'], params['b'])
 
 
@@ -413,7 +450,7 @@ def mu_anggota_banyak(jumlah):
 # FUNGSI KEANGGOTAAN SDM, UNIT USAHA, KAS (menggunakan skala yang sama)
 # =============================================================================
 
-def mu_skor_buruk(skor):
+def mu_skor_buruk(skor, variabel='sdm'):
     """
     Fungsi Keanggotaan Skor BURUK
     
@@ -422,15 +459,16 @@ def mu_skor_buruk(skor):
     
     Args:
         skor (int): Nilai skor (1-10)
+        variabel (str): Nama variabel ('sdm', 'unit_usaha', 'kas')
     
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = SKOR_PARAMS['buruk']
+    params = get_parameter_value(variabel, 'buruk', SKOR_PARAMS)
     return fungsi_bahu_kiri(skor, params['a'], params['b'])
 
 
-def mu_skor_kurang(skor):
+def mu_skor_kurang(skor, variabel='sdm'):
     """
     Fungsi Keanggotaan Skor KURANG
     
@@ -439,15 +477,16 @@ def mu_skor_kurang(skor):
     
     Args:
         skor (int): Nilai skor (1-10)
+        variabel (str): Nama variabel ('sdm', 'unit_usaha', 'kas')
     
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = SKOR_PARAMS['kurang']
+    params = get_parameter_value(variabel, 'kurang', SKOR_PARAMS)
     return fungsi_segitiga(skor, params['a'], params['b'], params['c'])
 
 
-def mu_skor_cukup(skor):
+def mu_skor_cukup(skor, variabel='sdm'):
     """
     Fungsi Keanggotaan Skor CUKUP
     
@@ -456,15 +495,16 @@ def mu_skor_cukup(skor):
     
     Args:
         skor (int): Nilai skor (1-10)
+        variabel (str): Nama variabel ('sdm', 'unit_usaha', 'kas')
     
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = SKOR_PARAMS['cukup']
+    params = get_parameter_value(variabel, 'cukup', SKOR_PARAMS)
     return fungsi_segitiga(skor, params['a'], params['b'], params['c'])
 
 
-def mu_skor_baik(skor):
+def mu_skor_baik(skor, variabel='sdm'):
     """
     Fungsi Keanggotaan Skor BAIK
     
@@ -473,15 +513,16 @@ def mu_skor_baik(skor):
     
     Args:
         skor (int): Nilai skor (1-10)
+        variabel (str): Nama variabel ('sdm', 'unit_usaha', 'kas')
     
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = SKOR_PARAMS['baik']
+    params = get_parameter_value(variabel, 'baik', SKOR_PARAMS)
     return fungsi_segitiga(skor, params['a'], params['b'], params['c'])
 
 
-def mu_skor_sangat_baik(skor):
+def mu_skor_sangat_baik(skor, variabel='sdm'):
     """
     Fungsi Keanggotaan Skor SANGAT BAIK
     
@@ -490,11 +531,12 @@ def mu_skor_sangat_baik(skor):
     
     Args:
         skor (int): Nilai skor (1-10)
+        variabel (str): Nama variabel ('sdm', 'unit_usaha', 'kas')
     
     Returns:
         float: Nilai keanggotaan (0-1)
     """
-    params = SKOR_PARAMS['sangat_baik']
+    params = get_parameter_value(variabel, 'sangat_baik', SKOR_PARAMS)
     return fungsi_bahu_kanan(skor, params['a'], params['b'])
 
 
@@ -525,25 +567,25 @@ MEMBERSHIP_FUNCTIONS = {
         'banyak': mu_anggota_banyak,
     },
     'sdm': {
-        'buruk': mu_skor_buruk,
-        'kurang': mu_skor_kurang,
-        'cukup': mu_skor_cukup,
-        'baik': mu_skor_baik,
-        'sangat_baik': mu_skor_sangat_baik,
+        'buruk': lambda x: mu_skor_buruk(x, 'sdm'),
+        'kurang': lambda x: mu_skor_kurang(x, 'sdm'),
+        'cukup': lambda x: mu_skor_cukup(x, 'sdm'),
+        'baik': lambda x: mu_skor_baik(x, 'sdm'),
+        'sangat_baik': lambda x: mu_skor_sangat_baik(x, 'sdm'),
     },
     'unit_usaha': {
-        'buruk': mu_skor_buruk,
-        'kurang': mu_skor_kurang,
-        'cukup': mu_skor_cukup,
-        'baik': mu_skor_baik,
-        'sangat_baik': mu_skor_sangat_baik,
+        'buruk': lambda x: mu_skor_buruk(x, 'unit_usaha'),
+        'kurang': lambda x: mu_skor_kurang(x, 'unit_usaha'),
+        'cukup': lambda x: mu_skor_cukup(x, 'unit_usaha'),
+        'baik': lambda x: mu_skor_baik(x, 'unit_usaha'),
+        'sangat_baik': lambda x: mu_skor_sangat_baik(x, 'unit_usaha'),
     },
     'kas': {
-        'buruk': mu_skor_buruk,
-        'kurang': mu_skor_kurang,
-        'cukup': mu_skor_cukup,
-        'baik': mu_skor_baik,
-        'sangat_baik': mu_skor_sangat_baik,
+        'buruk': lambda x: mu_skor_buruk(x, 'kas'),
+        'kurang': lambda x: mu_skor_kurang(x, 'kas'),
+        'cukup': lambda x: mu_skor_cukup(x, 'kas'),
+        'baik': lambda x: mu_skor_baik(x, 'kas'),
+        'sangat_baik': lambda x: mu_skor_sangat_baik(x, 'kas'),
     },
 }
 
